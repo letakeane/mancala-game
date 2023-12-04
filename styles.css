@@ -1,0 +1,58 @@
+* {
+  box-sizing: border-box;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+#board {
+  background: burlywood;
+  width: 85vw;
+  height: 350px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: space-evenly;
+  margin: auto;
+  padding: 20px;
+  padding-top: 270px;
+}
+
+#player1side,
+#player2side {
+  width: 90%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#player1side {
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  transform: translate3D(-10px, -250px, 0);
+}
+
+#player2side {
+  align-items: flex-start;
+  transform: translateX(135px);
+}
+
+.well {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid peru;
+  background: peru;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#goal {
+  height: 250px;
+  border-radius: 20px;
+}
+
+.current .well {
+  border: 2px solid aliceblue;
+  box-shadow: 0 0 10px 4px aliceblue;
+}
