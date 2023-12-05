@@ -19,80 +19,73 @@ const board = {
   currentPlayersBank: 6,
   opponentBank: 13
 }
-// Select a hole
-// one at a time, distribute its stones to the next holes
-  // Opponent bank? SKIP that bank and continue in my first hole
-// until only one bead is left:
-    // My bank/goal? Restart with a hole of the player's choice
-    // a hole? 
-        // Are there stones in it before you add your last bead?
-            // Yes
-              // Restart turn, but beginning with THAT hole
-            // No
-              // Opponent hole? End turn
-              // My hole? Pick up opponent's stones in across well
-                    // add to My bank/goal
-                    // End
 
-function takeTurn(holeIndex) {
-  let currentStones = board.holes[holeIndex].stones;
-  // debugger
-  board.holes[holeIndex].stones = 0; // take out all the stones from the chosen hole
+function getNextHole(currentIndex) {
+  if (currentIndex === 13) {
+    return board.holes[0]
+  }
+
+  return board.holes[currentIndex + 1]
+}
+
+function takeTurn(chosenIndex) {
+  debugger;
+  let currentHole = board.holes[chosenIndex];
+  let currentStones = currentHole.stones;
+  let nextHole;
   let i;
+  currentHole.stones = 0;
 
-  // start at chosen index; repeat stone's number of times minus 1; increase once
-  for (i = holeIndex; i < currentStones + 2; i++) {
-    if (i > 13) { // if our index has gotten bigger than 13
-      i = 0;      // loop back around to the beginning of the array
+  for (i = chosenIndex; i <= currentStones; i++) {
+    nextHole = getNextHole(i);
+
+    // place a stone in all next holes except the opponent's bank
+    if (i !== board.opponentBank) {
+      nextHole.stones += 1;
     }
-    
-    // add a stone as long as the well is NOT the opponent's bank
-    if ((i + 1) !== board.opponentBank) {
-        board.holes[i + 1].stones += 1;                  // add a stone
-    }
-    // if (board.holes[i + 1].player === board.currentPlayer) { // it's our holes
-    // } else if (board.holes[i + 1].player !== board.currentPlayer && ) { // it's not our holes AND it's not their bank
-    //   board.holes[i + 1].stones += 1;                  // add a stone
-    // }
   }
 
-  let j = i + 1;
+  nextHole = getNextHole(i);
 
-  // now we only have one stone left:
-  if (j > 13) { // if our index has gotten bigger than 13
-      j = 0  // loop back around to the beginning of the array
-    }
-  let nextHole = board.holes[j];
-  if (nextHole.bank && nextHole.player === board.currentPlayer) {
+  // keep playing:
+  // when you end in a hole (not bank) with stones in it
+  if (confirmNotBank(nextHole) && nextHole.stones > 0) {
     nextHole.stones += 1;
-    // continue playing.
+    takeTurn(i + 1);
   }
-  if (nextHole.player !== board.currentPlayer) {
+
+  // end turn
+  // when you end in your bank
+  if ((i + 1) === board.currentPlayersBank) {
+    nextHole.stones += 1;
     changePlayerTurn();
-    return; // end function (end turn)
+    return;
   }
-
-  // if  it's our hole and there are NO stones
-  if (nextHole.stones === 0) {
-    // place that stone in bank
+  
+  // when you end in an empty hole on the opponent's side
+  if (nextHole.stones === 0 && !confirmMine(nextHole)) {
     nextHole.stones += 1;
-    // add corresponding well's stones to my bank
-    let oppositeHolesStones = board.holes[nextHole.corresponding].stones;
-    board.holes[board.currentPlayersBank].stones += oppositeHolesStones;
-    // set corresponding well's stones to 0
+    changePlayerTurn();
+    return;
+  }
+  
+  // when you end in an empty hole on your side
+  if (nextHole.stones === 0 && confirmMine(nextHole)) {
+    // take opposite hole's stone + your last stone & add to your bank
+    board.holes[board.currentPlayersBank].stones += board.holes[nextHole.corresponding].stones;
+    board.holes[board.currentPlayersBank].stones += 1;
     board.holes[nextHole.corresponding].stones = 0;
     changePlayerTurn();
     return;
   }
+}
 
-  // if it's our hole and there are stones:
-  if (nextHole.stones > 0) {
-    // place stone in hole
-    nextHole.stones += 1;
-    // restart turn but with that hole as the starting index
-    takeTurn(j);
-  }
+function confirmMine(nextHole) {
+  return nextHole.player === board.currentPlayer
+}
 
+function confirmNotBank(nextHole) {
+  return !nextHole.bank
 }
 
 function changePlayerTurn() {
